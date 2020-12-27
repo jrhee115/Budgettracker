@@ -22,15 +22,34 @@ self.addEventListener('install', function (evt) {
 self.addEventListener('activate', function (evt) {
     evt.waitUntil(
         caches.keys().then(keyList => {
-                return Promise.all(
-                    keyList.map(key => {
-                        if (key !== CACHE_NAME && key !==DATA_CACHE_NAME){
-                            console.log("removing cache data", key);
-                            return caches.delete(key);
-                        }
-                    })
-                );
-            })
+            return Promise.all(
+                keyList.map(key => {
+                    if (key !== CACHE_NAME && key !== DATA_CACHE_NAME) {
+                        console.log("removing cache data", key);
+                        return caches.delete(key);
+                    }
+                })
+            );
+        })
+    );
+    self.client.claim();
+});
+
+//fetch
+self.addEventListener('fetch', function (evt) {
+    if (evt.request.url.includes("/api/")) {
+        evt.respondWith(
+            caches.open(DATA_CACHE_NAME).then(cache => {
+                return fetch(evt.request)
+                .then(response => {
+                    if (response.status === 200){
+                        cache.put(evt.request.url, response.clone());
+                    }
+                    return response;
+                }).catch(err => {
+                    return cache.match(evt.request);
+                });
+            }).catch(err => console.log(err))
         );
-        self.client.claim();
-    });
+    return;
+}});

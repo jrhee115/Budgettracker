@@ -3,7 +3,11 @@ const { response } = require("express");
 const FILES_TO_CACHE = [
     "/",
     "/index.html",
-    ""
+    "/style.css",
+    "/icons/icon-192x192.png",
+    "/icons/icon-512-512.png",
+    "index.js",
+    "/indexedDb.js"
 ];
 
 const CACHE_NAME = "static-cache-v2";
